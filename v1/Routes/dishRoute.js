@@ -1,16 +1,28 @@
-const express = require('express');
-const router = express.Router();
-const dish_controller = require('../Controllers/dishController');
-const user_controller = require('../Controllers/userController');
+const express = require('express')
+const router = express.Router()
+const dish_controller = require('../Controllers/dishController')
 
-const passport = require('passport');
-const passportJWT = passport.authenticate('jwt', { session: false });
+const passport = require('passport')
+const passportJWT = passport.authenticate('jwt', { session: false })
 
-router.get('/', dish_controller.get_all_dishes);
+router.post('/', passportJWT, dish_controller.createDish)
 
-router.get('/:id', dish_controller.get_dishes_by_ID);
+router.get('/', passportJWT, dish_controller.get_all_dishes)
 
-// delete a dish by id
-router.delete('/:id', passportJWT, dish_controller.deleteDish);
+// router.get('/me', passportJWT, dish_controller.get_user_dishes);
 
-module.exports = router;
+router.get('/:id', passportJWT, dish_controller.get_dishes_by_ID)
+
+router.delete('/:id', passportJWT, dish_controller.delete_dish)
+
+router.patch('/:id', passportJWT, dish_controller.edit_dish)
+
+router.put('/toggle_like/:id', passportJWT, dish_controller.toggle_like)
+
+router.put('/toggle_favourite/:id', passportJWT, dish_controller.toggle_favorite)
+
+router.post('/comments/:dishId', passportJWT, dish_controller.addCommentToDish)
+
+router.delete('/comments/:dishId/:commentId', passportJWT, dish_controller.removeDishComment)
+
+module.exports = router

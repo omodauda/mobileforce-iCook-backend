@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const Schema = mongoose.Schema;
@@ -11,14 +12,15 @@ const userSchema = new Schema({
   local: {
     email: {
       type: String,
+      unique: true,
+      trim: true,
       lowercase: true,
     },
     password: {
       type: String,
     },
-    password: {
-      type: String,
-    },
+    passwordResetToken: String,
+    passwordResetExpires: Date
   },
   google: {
     id: {
@@ -44,11 +46,10 @@ const userSchema = new Schema({
       ref: 'profile',
     },
   ],
-});
+}, {timestamps:true});
 
 userSchema.pre('save', async function (next) {
   try {
-    console.log('entered');
     if (this.method !== 'local') {
       next();
     }
@@ -59,19 +60,35 @@ userSchema.pre('save', async function (next) {
     const passwordHash = await bcrypt.hash(this.local.password, salt);
     // Re-assign hashed version over original, plain text password
     this.local.password = passwordHash;
-    console.log('exited');
     next();
   } catch (error) {
     next(error);
   }
 });
 
-userSchema.methods.isValidPassword = async function (newPassword, res) {
+userSchema.methods.isValidPassword = async function (newPassword) {
   try {
     return await bcrypt.compare(newPassword, this.local.password);
   } catch (error) {
     throw new Error(error);
   }
+};
+
+userSchema.methods.createPasswordResetToken = function() {
+
+  const resetToken =  Math.floor(100000 + Math.random() * 900000);
+
+  //console.log({ resetToken }, this.local.passwordResetToken);
+   const resetExpires = Date.now() + 10 * 60 * 1000;
+
+  return {resetToken,resetExpires};
+};
+
+userSchema.methods.resetPassword = function(newPassword) {
+
+  this.local.passwordResetToken = undefined;
+  this.local.passwordResetExpires = undefined;
+  this.local.password = newPassword;
 };
 
 // Create a model

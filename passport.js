@@ -1,4 +1,3 @@
-require('dotenv').config();
 const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
 const { ExtractJwt } = require('passport-jwt');
@@ -6,6 +5,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const GooglePlusTokenStrategy = require('passport-google-plus-token');
 const FacebookTokenStrategy = require('passport-facebook-token');
 const User = require('./Models/authModel');
+const Profile = require('./Models/profileModel');
 
 // JSON WEB TOKENS STRATEGY
 passport.use(
@@ -49,7 +49,7 @@ passport.use(
         console.log('profile', profile);
         console.log('accessToken', accessToken);
         console.log('refreshToken', refreshToken);
-
+        const name = profile.name.givenName+ " "+profile.name.familyName
         const existingUser = await User.findOne({ 'google.id': profile.id });
         if (existingUser) {
           return done(null, existingUser);
@@ -62,11 +62,20 @@ passport.use(
             email: profile.emails[0].value,
           },
         });
+        //@omodauda create a profile for a user registering with Google oauth
+        const newProfile = new Profile({
+          userId: newUser._id,
+          email: profile.emails[0].value,
+          name: name,
+          gender: "others"
+        });
 
+        await newProfile.save();
+        await newUser.profile.push(newProfile);
         await newUser.save();
-        done(null, newUser);
+        return done(null, newUser);
       } catch (error) {
-        done(error, false, error.message);
+        return done(error, false, error.message);
       }
     }
   )
@@ -82,10 +91,6 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        console.log('profile', profile);
-        console.log('accessToken', accessToken);
-        console.log('refreshToken', refreshToken);
-
         const existingUser = await User.findOne({ 'facebook.id': profile.id });
         if (existingUser) {
           return done(null, existingUser);
@@ -98,11 +103,20 @@ passport.use(
             email: profile.emails[0].value,
           },
         });
+        //@omodauda create a profile for a user registering with  oauth
+        const newProfile = new Profile({
+          userId: newUser._id,
+          email: profile.emails[0].value,
+          name: profile.displayName,
+          gender: "others"
+        });
 
+        await newProfile.save();
+        await newUser.profile.push(newProfile);
         await newUser.save();
-        done(null, newUser);
+        return done(null, newUser);
       } catch (error) {
-        done(error, false, error.message);
+        return done(error, false, error.message);
       }
     }
   )
@@ -121,7 +135,7 @@ passport.use(
 
         // If not, handle it
         if (!user) {
-          return done(null, false);
+          return done(new Error('Invalid email or password'), false);
         }
 
         // Check if the password is correct
@@ -129,10 +143,10 @@ passport.use(
 
         // If not, handle it
         if (!isMatch) {
-          return done(null, false);
+          return done(new Error('Authentication failed'), false);
         }
 
-        done(none, user);
+        done(null, user);
       } catch (error) {
         done(error, false);
       }
