@@ -2,7 +2,7 @@ const passport = require('passport');
 const JwtStrategy = require('passport-jwt').Strategy;
 const { ExtractJwt } = require('passport-jwt');
 const LocalStrategy = require('passport-local').Strategy;
-const GooglePlusTokenStrategy = require('passport-google-plus-token');
+const GooglePlusTokenStrategy = require('passport-google-token').Strategy;
 const FacebookTokenStrategy = require('passport-facebook-token');
 const User = require('./Models/authModel');
 const Profile = require('./Models/profileModel');
@@ -11,7 +11,7 @@ const Profile = require('./Models/profileModel');
 passport.use(
   new JwtStrategy(
     {
-      jwtFromRequest: ExtractJwt.fromHeader('authorization'),
+      jwtFromRequest: ExtractJwt.fromHeader('x-auth-token'),
       secretOrKey: process.env.JWT_SECRET,
     },
     async (payload, done) => {
@@ -44,9 +44,6 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         // Should have full user profile over here
-        console.log('profile', profile);
-        console.log('accessToken', accessToken);
-        console.log('refreshToken', refreshToken);
         const name = profile.name.givenName+ " "+profile.name.familyName
         const existingUser = await User.findOne({ 'google.id': profile.id });
         if (existingUser) {
@@ -88,6 +85,7 @@ passport.use(
       clientSecret: process.env.FACEBOOK_APP_SECRET,
     },
     async (accessToken, refreshToken, profile, done) => {
+      
       try {
         const existingUser = await User.findOne({ 'facebook.id': profile.id });
         if (existingUser) {

@@ -62,6 +62,30 @@ exports.createDish = async (req, res, next) => {
 };
 
 //Get all dishes in DB
+exports.get_dishes = async (req, res) => {
+  try{
+    const dishes = await Dish.find().populate("chefId");
+    if(dishes){
+      res.status(200).json({
+        status: "success",
+        error: "",
+        data: dishes
+      })
+    } else{
+      res.status(200).json({
+        status: "success",
+        error: "",
+        data: "no dishes post available"
+      })
+    }
+  }
+  catch(error){
+    res.status(400).json({
+      status: "fail",
+      error: error.message
+    })
+  }
+}
 
 exports.get_all_dishes = async (req, res, next) => {
   try {
