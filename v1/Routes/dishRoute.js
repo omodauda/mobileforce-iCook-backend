@@ -8,7 +8,7 @@ const passportJWT = passport.authenticate('jwt', { session: false })
 
 router.post('/', passportJWT, upload.array("photos"), dish_controller.createDish)
 
-// router.get("/", dish_controller.get_dishes);
+// router.get("/", passportJWT, dish_controller.get_dishes);
 
 router.get('/', passportJWT, dish_controller.get_all_dishes)
 

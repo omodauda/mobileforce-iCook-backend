@@ -34,6 +34,19 @@ const dishSchema = new schema(
   { timestamps: true }
 )
 
+
+dishSchema.virtual('comments',{
+  ref: 'comment',
+  localField: '_id',
+  foreignField: 'dish'
+})
+
+dishSchema.set('toObject', { virtuals: true });
+dishSchema.set('toJSON', { virtuals: true });
+
+
+
+
 dishSchema.methods._isLiked = function (userId) {
   return this.likes.includes(userId)
 }

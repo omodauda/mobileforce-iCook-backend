@@ -9,7 +9,7 @@ function _dish(dish, req, extraData={}) {
     isLiked: dish._isLiked(req.user._id)
   },extraData);
   delete d.likes;
-  delete d.comments;
+  // delete d.comments;
   return d;
 };
 

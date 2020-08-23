@@ -64,12 +64,13 @@ exports.createDish = async (req, res, next) => {
 //Get all dishes in DB
 exports.get_dishes = async (req, res) => {
   try{
-    const dishes = await Dish.find().populate("chefId");
+    // const dishes = await Dish.find().populate("chefId");
+    const dishes = await Dish.find().populate({path: 'chefId', select: 'name userId userImage'}).populate({path: 'comments', select: '-_id'});
     if(dishes){
       res.status(200).json({
         status: "success",
         error: "",
-        data: dishes
+        dishes: dishes
       })
     } else{
       res.status(200).json({
@@ -97,7 +98,8 @@ exports.get_all_dishes = async (req, res, next) => {
     });
     const dishes = await Dish.find()
       .sort("-createdAt")
-      .populate({ path: "chefId", select: ["name", "userImage"] });
+      .populate({ path: "chefId", select: ["name", "userImage"] })
+      .populate({ path: 'comments', select: '-_id'});
     return res.status(200).json({
       status: "success",
       error: "",
