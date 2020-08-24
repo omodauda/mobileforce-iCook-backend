@@ -4,6 +4,7 @@ const Profile = require("../../Models/profileModel");
 const User = require("../../Models/authModel");
 const Comment = require("../../Models/commentModel");
 const PublicResponse = require("../../Helpers/model");
+const client = require('../../Helpers/redis');
 
 exports.createDish = async (req, res, next) => {
   if (!req.files) res.status(400).json({
@@ -100,6 +101,11 @@ exports.get_all_dishes = async (req, res, next) => {
       .sort("-createdAt")
       .populate({ path: "chefId", select: ["name", "userImage"] })
       .populate({ path: 'comments', select: '-_id'});
+  
+    //set dishes to  cache
+    const key = req.url;
+    client.setex(key, 60, JSON.stringify(dishes));
+
     return res.status(200).json({
       status: "success",
       error: "",
