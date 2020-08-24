@@ -11,9 +11,7 @@ router.post('/', passportJWT, upload.array("photos"), dish_controller.createDish
 
 // router.get("/", passportJWT, dish_controller.get_dishes);
 
-router.get('/', passportJWT, cache, dish_controller.get_all_dishes)
-
-// router.get('/me', passportJWT, dish_controller.get_user_dishes);
+router.get('/', passportJWT, dish_controller.get_all_dishes)
 
 router.get('/:id', passportJWT, dish_controller.get_dishes_by_ID)
 

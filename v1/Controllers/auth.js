@@ -92,8 +92,6 @@ module.exports = {
       const token = signToken(req.user);
       
       const userDetails = await User.findById(req.user._id).populate('profile');
-     
-      console.log(userDetails);
       
 
       res

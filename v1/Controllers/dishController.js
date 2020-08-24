@@ -115,6 +115,7 @@ exports.get_all_dishes = async (req, res, next) => {
       },
     });
   } catch (error) {
+    console.log(error)
     return res.status(500).json({
       status: "fail",
       error: error.message,
