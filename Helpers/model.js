@@ -32,9 +32,21 @@ function _user(user, req, fn) {
   return _user;
 };
 
+//@Omodauda Aug 28
+function _me(me){
+  const _me = Object.assign({}, {
+    ...me.toJSON(),
+    followersCount: me.followers ? me.followers.length : 0,
+    followingCount: me.following ? me.following.length : 0,
+    dishesCount: me.dishes ? me.dishes.length : 0
+  });
+  return _me;
+}
+
 // @Usman Jun 27
 const dishes = (_dishes, req, fn=() => ({})) => _dishes.map(d => _dish(d, req, fn(d._id.toString())));
 exports.users = (_users, req) => _users.map(u => _user(u, req));
 exports.dishes = dishes;
 exports.dish = _dish;
 exports.user = _user;
+exports.me = _me;

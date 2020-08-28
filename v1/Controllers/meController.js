@@ -24,7 +24,7 @@ exports.get_me = async (req, res) => {
         status: 'success',
         error: '',
         data: {
-          me
+          me: PublicResponse.me(me)
         }
       })
     } else {
